@@ -14,6 +14,11 @@ set tabstop=2
 set shiftwidth=2
 set expandtab
 
+" Tab indent indicator
+let g:indentLine_char = '▏'
+let g:indentLine_color_term = 40
+let g:indentLine_color_gui = '#333333'
+
 " 2 space tabs for C/C++ files
 autocmd BufRead,BufNewFile *.h setlocal tabstop=2
 autocmd BufRead,BufNewFile *.c setlocal shiftwidth=2
@@ -119,6 +124,9 @@ set rtp+=~/.vim/bundle/Vundle.vim
 " Required for plugin: zivyangll/git-blame.vim
 nnoremap <Leader>s :<C-u>call gitblame#echo()<CR>
 
+" Allow alias commands to be ran inside vim
+let $BASH_ENV = "~/.bash_aliases"
+
 " Plugins
 call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
@@ -155,6 +163,8 @@ Plugin 'andymass/vim-matchup'
 Plugin 'zivyangll/git-blame.vim'
 " Test vimscript
 Plugin 'junegunn/vader.vim'
+" Show indent tabs
+Plugin 'Yggdroot/indentLine'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
