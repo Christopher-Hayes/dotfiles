@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# Setup bash aliases + functions before setting anything else up
+mkdir ~/src
+git clone https://github.com/christopher-hayes/dotfiles ~/src/dotfiles
+git clone https://github.com/christopher-hayes/dotfiles_private ~/src/dotfiles_private
+# .bashrc [PRIVATE] - pull in bash aliases + functions script
+echo '
+if [ -f ~/src/dotfiles_private/bash/.bashrc_custom ]; then
+  . ~/src/dotfiles_private/bash/.bashrc_custom
+else
+  echo "No custom bashfile present (PRIVATE version)"
+fi
+' >> ~/.bashrc;
+# .bashrc [PUBLIC] - pull in bash aliases + functions script
+echo '
+if [ -f ~/src/dotfiles/bash/.bashrc ]; then
+  . ~/src/dotfiles/.bashrc
+else
+  echo "No custom bashfile present (PUBLIC version)"
+fi
+' >> ~/.bashrc;
+# .vimrc
+ln ~/src/dotfiles/vim/.vimrc ~/.vimrc
+
+# Install via sudo apt install
+sudo apt update
+i() { sudo apt install "$1"; }
+
+### Package Management ########################################################
+# Ruby
+i ruby
+# Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "/home/${USER}/.profile";
+eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+brew update
+# NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+# update node to latest lts version
+nvm::update;
+
+### TOOLS #####################################################################
+# Git
+i git
+# Aptitude - Get APT package versions, search, upgrade versions
+i aptitude
+# htop - Hardware stats
+i htop
+# alsamixer - CLI Sound levels
+i alsamixer
+# Webp converter
+i webp
+
+### Utilities #################################################################
+# Watchman - watch FS
+brew install watchman
+# PHP
+i php
+i php-curl
+# Rust
+curl https://sh.rustup.rs -sSf | sh
+export PATH=$HOME/.cargo/bin:$PATH
+cargo install cbindgen
+# XClip - clipboard util
+sudo apt install xclip

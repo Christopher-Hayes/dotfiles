@@ -9,10 +9,13 @@ set noswapfile
 " Line numbers
 set number
 
-" 4 space tabs, tab button = 4 spaces
+" 2 space tabs, tab button = 2 spaces
 set tabstop=2
 set shiftwidth=2
 set expandtab
+
+" Disable quote concealing in JSON files
+let g:vim_json_conceal=0
 
 " Tab indent indicator
 let g:indentLine_char = '▏'
