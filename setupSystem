@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Setup bash aliases + functions before setting anything else up
-mkdir ~/src
-git clone https://github.com/christopher-hayes/dotfiles ~/src/dotfiles
-git clone https://github.com/christopher-hayes/dotfiles_private ~/src/dotfiles_private
+#Probably already have these repos cloned if running this script
+#mkdir ~/src
+#git clone https://github.com/christopher-hayes/dotfiles ~/src/dotfiles
+#git clone https://github.com/christopher-hayes/dotfiles_private ~/src/dotfiles_private
 # .bashrc [PRIVATE] - pull in bash aliases + functions script
 echo '
 if [ -f ~/src/dotfiles_private/bash/.bashrc_custom ]; then
@@ -23,26 +24,36 @@ fi
 # .vimrc
 ln ~/src/dotfiles/vim/.vimrc ~/.vimrc
 
-# Install via sudo apt install
+# Update packages
 sudo apt update
-i() { sudo apt install "$1"; }
+# Install function for brevity
+i() { sudo apt install "$1" -y; }
 
 ### Package Management ########################################################
 # Ruby
 i ruby
 # Homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "/home/${USER}/.profile";
-eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
-brew update
+if ! command -v brew &> /dev/null
+then
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+	echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "/home/${USER}/.profile";
+	eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+	brew update
+fi
 # NVM
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-# update node to latest lts version
-nvm::update;
+if ! command -v nvm &> /dev/null
+then
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+	# update node to latest lts version
+	nvm::update;
+fi
 
 ### TOOLS #####################################################################
-# Git
-i git
+# Git (just in case it isn't already)
+if ! command -v git &> /dev/null
+then
+	i git
+fi
 # Aptitude - Get APT package versions, search, upgrade versions
 i aptitude
 # htop - Hardware stats
@@ -51,6 +62,19 @@ i htop
 i alsamixer
 # Webp converter
 i webp
+# Net tools (ifconfig)
+if ! command -v ifconfig &> /dev/null
+then
+	i net-tools
+fi
+# GitHub cli
+if ! command -v gh &> /dev/null
+then
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+	sudo apt-add-repository https://cli.github.com/packages
+	sudo apt update
+	sudo apt install gh
+fi
 
 ### Utilities #################################################################
 # Watchman - watch FS
@@ -63,4 +87,9 @@ curl https://sh.rustup.rs -sSf | sh
 export PATH=$HOME/.cargo/bin:$PATH
 cargo install cbindgen
 # XClip - clipboard util
-sudo apt install xclip
+i xclip
+# C++
+i gcc
+
+### Misc ######################################################################
+echo "Remember to bind CAPS to ESCAPE"
