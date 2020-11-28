@@ -44,6 +44,7 @@ fi
 if ! command -v nvm &> /dev/null
 then
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+	. ~/.bashrc
 	# update node to latest lts version
 	nvm::update;
 fi
@@ -88,8 +89,12 @@ export PATH=$HOME/.cargo/bin:$PATH
 cargo install cbindgen
 # XClip - clipboard util
 i xclip
-# C++
-i gcc
+# Build essentials (gcc, g++, make)
+i build-essential
+# Python2.7
+i python
+# Python3
+i python3
 
 ### Misc ######################################################################
 echo "Remember to bind CAPS to ESCAPE"
