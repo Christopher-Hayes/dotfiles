@@ -76,6 +76,9 @@ then
 	sudo apt update
 	sudo apt install gh
 fi
+### NPM tools
+# Vue CLI
+npm i -g @vue/cli
 
 ### Utilities #################################################################
 # Watchman - watch FS
