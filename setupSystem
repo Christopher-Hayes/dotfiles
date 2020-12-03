@@ -55,6 +55,7 @@ if ! command -v git &> /dev/null
 then
 	i git
 fi
+i git-flow
 # Aptitude - Get APT package versions, search, upgrade versions
 i aptitude
 # htop - Hardware stats
@@ -79,6 +80,8 @@ fi
 ### NPM tools
 # Vue CLI
 npm i -g @vue/cli
+# Generates version for usage in node apps
+npm i -g genversion
 
 ### Utilities #################################################################
 # Watchman - watch FS
