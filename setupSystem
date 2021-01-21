@@ -28,6 +28,10 @@ ln ~/src/dotfiles/vim/.vimrc ~/.vimrc
 sudo apt update
 # Install function for brevity
 i() { sudo apt install "$1" -y; }
+log_install() {
+  printf "\n--------------\nINSTALLING ${1}\n--------------\n\n"
+  sleep 1
+}
 
 ### Package Management ########################################################
 # Ruby
@@ -35,6 +39,8 @@ i ruby
 # Homebrew
 if ! command -v brew &> /dev/null
 then
+  log_install "HOMEBREW"
+
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 	echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "/home/${USER}/.profile";
 	eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
@@ -43,16 +49,27 @@ fi
 # NVM
 if ! command -v nvm &> /dev/null
 then
+  log_install "NVM v0.35.3"
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 	. ~/.bashrc
 	# update node to latest lts version
 	nvm::update;
 fi
+# Yarn
+if ! command -v yarn &> /dev/null
+then
+  log_install "YARN"
+  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+  sudo apt update && sudo apt install --no-install-recommends yarn
+fi
+
 
 ### TOOLS #####################################################################
 # Git (just in case it isn't already)
 if ! command -v git &> /dev/null
 then
+  log_install "GIT"
 	i git
 fi
 i git-flow
@@ -64,14 +81,17 @@ i htop
 i alsamixer
 # Webp converter
 i webp
+
 # Net tools (ifconfig)
 if ! command -v ifconfig &> /dev/null
 then
+  log_install "net-tools (ifconfig)"
 	i net-tools
 fi
 # GitHub cli
 if ! command -v gh &> /dev/null
 then
+  log_install "GitHub CLI (gh)"
 	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 	sudo apt-add-repository https://cli.github.com/packages
 	sudo apt update
@@ -82,6 +102,15 @@ fi
 npm i -g @vue/cli
 # Generates version for usage in node apps
 npm i -g genversion
+# Check/update major pkg versions
+npm i -g npm-check-updates
+
+### Frequently used packages
+# Draco
+mkdir ~/pkg; cd ~/pkg
+gh repo clone google/draco
+cd draco && mkdir build_dir && cd build_dir && cmake ../ && make
+# 
 
 ### Utilities #################################################################
 # Watchman - watch FS
@@ -97,6 +126,8 @@ cargo install cbindgen
 i xclip
 # Build essentials (gcc, g++, make)
 i build-essential
+# cmake - make-like build tool
+i cmake
 # Python2.7
 i python
 # Python3
@@ -104,3 +135,4 @@ i python3
 
 ### Misc ######################################################################
 echo "Remember to bind CAPS to ESCAPE"
+

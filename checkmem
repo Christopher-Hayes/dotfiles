@@ -1,0 +1,14 @@
+#!/bin/bash
+
+free -m
+
+memStr=$(free -m)
+freeMem=$(echo $memStr | awk -v N=13 '{print $N}')
+if (( $freeMem < 1000 )); then
+  notify-send --urgency=critical "MEMORY LOW! $freeMem MB"
+fi
+if (( $freeMem < 200 )); then
+  pkill firefox
+  sleep 3
+  (~/Desktop/firefox-dev &)
+fi
