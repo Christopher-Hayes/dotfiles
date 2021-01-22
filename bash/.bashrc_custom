@@ -5,7 +5,8 @@ alias bashrcPublic='vim ~/src/dotfiles/bash/.bashrc_custom;source ~/.bashrc'
 ### Fix scripts
 # GruvBox - Every install it gets an error about not finding the theme colors
 fixGruvBox() {
-  cp -p ~/.vim/bundle/gruvbox/colors/gruvbox.vim ~/.vim/colors/
+  mkdir -p ~/.vim/colors
+  cp ~/.vim/bundle/gruvbox/colors/gruvbox.vim ~/.vim/colors/
 }
 
 

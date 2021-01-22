@@ -33,6 +33,19 @@ log_install() {
   sleep 1
 }
 
+# Install git before anything
+if ! command -v git &> /dev/null
+then
+  log_install "GIT"
+	i git
+fi
+
+# Need /dotfiles package to exist before proceeding
+echo "Attempting to git clone /dotfiles_private..."
+mkdir -p ~/src
+git clone christopher-hayes/dotfiles_private ~/src/dotfiles_private
+read -p "The /dotfiles_private repository must be cloned at this point to install Vim packages. If that failed above, please do that now before proceeding. Press ENTER when that has been completed...";echo "Proceeding..."
+
 ### Package Management ########################################################
 # Ruby
 i ruby
@@ -63,15 +76,12 @@ then
   echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
   sudo apt update && sudo apt install --no-install-recommends yarn
 fi
+# Vundle (Vim package management)
+mkdir -p ~/.vim/bundle
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
 
 ### TOOLS #####################################################################
-# Git (just in case it isn't already)
-if ! command -v git &> /dev/null
-then
-  log_install "GIT"
-	i git
-fi
 i git-flow
 # Aptitude - Get APT package versions, search, upgrade versions
 i aptitude
@@ -132,7 +142,20 @@ i cmake
 i python
 # Python3
 i python3
+# Vim
+i vim
+# Now that Vim is installed, install the plugins from Vundle
+# Remember that /dotfiles_private needs to exist for this to work
+vim +PluginInstall +qall
+
+### Theming ###################################################################
+# Note: GruvBox vim theme is installed automatically with Vundle + .vimrc
 
 ### Misc ######################################################################
-echo "Remember to bind CAPS to ESCAPE"
+read -p "[Git config] Your email=" gitemail;echo "Setting git config email to ${gitemail}"
+git config --global user.email "${gitemail}"
+read -p "[Git config] Your name=" gitname;echo "Setting git config name to ${gitname}"
+git config --global user.name "${gitname}"
+
+echo "Remember to bind CAPS to ESCAPE (Gnome Tweaks works great for this)"
 
