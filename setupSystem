@@ -1,31 +1,37 @@
 #!/bin/bash
 
-# Setup bash aliases + functions before setting anything else up
-#Probably already have these repos cloned if running this script
-#mkdir ~/src
-#git clone https://github.com/christopher-hayes/dotfiles ~/src/dotfiles
-#git clone https://github.com/christopher-hayes/dotfiles_private ~/src/dotfiles_private
-# .bashrc [PRIVATE] - pull in bash aliases + functions script
-echo '
-if [ -f ~/src/dotfiles_private/bash/.bashrc_custom ]; then
-  . ~/src/dotfiles_private/bash/.bashrc_custom
-else
-  echo "No custom bashfile present (PRIVATE version)"
-fi
-' >> ~/.bashrc;
-# .bashrc [PUBLIC] - pull in bash aliases + functions script
-echo '
-if [ -f ~/src/dotfiles/bash/.bashrc ]; then
-  . ~/src/dotfiles/.bashrc
-else
-  echo "No custom bashfile present (PUBLIC version)"
-fi
-' >> ~/.bashrc;
-# .vimrc
-ln ~/src/dotfiles/vim/.vimrc ~/.vimrc
+read -p "Append custom bashrc's to .bashrc? Skip if running again. (y/n) " answer
+case ${answer:0:1} in
+    y|Y )
+        echo "Updating .bashrc..."
+        # Setup bash aliases + functions before setting anything else up
+        # .bashrc [PRIVATE] - pull in bash aliases + functions script
+        echo '
+        if [ -f ~/src/dotfiles_private/bash/.bashrc_custom ]; then
+          . ~/src/dotfiles_private/bash/.bashrc_custom
+        else
+          echo "No custom bashfile present (PRIVATE version)"
+        fi
+        ' >> ~/.bashrc;
+        # .bashrc [PUBLIC] - pull in bash aliases + functions script
+        echo '
+        if [ -f ~/src/dotfiles/bash/.bashrc_custom ]; then
+          . ~/src/dotfiles/bash/.bashrc_custom
+        else
+          echo "No custom bashfile present (PUBLIC version)"
+        fi
+        ' >> ~/.bashrc;
+        # .vimrc (soft link, so it's okay to do before target exists)
+        ln ~/src/dotfiles/vim/.vimrc ~/.vimrc
+    ;;
+    * )
+        echo "Skipped .bashrc source updates.."
+    ;;
+esac
 
 # Update packages
 sudo apt update
+
 # Install function for brevity
 i() { sudo apt install "$1" -y; }
 log_install() {
@@ -40,11 +46,38 @@ then
 	i git
 fi
 
-# Need /dotfiles package to exist before proceeding
-echo "Attempting to git clone /dotfiles_private..."
-mkdir -p ~/src
-git clone christopher-hayes/dotfiles_private ~/src/dotfiles_private
-read -p "The /dotfiles_private repository must be cloned at this point to install Vim packages. If that failed above, please do that now before proceeding. Press ENTER when that has been completed...";echo "Proceeding..."
+read -p "Create new SSH key for GitHub (y/n)? " answer
+case ${answer:0:1} in
+    y|Y )
+        # Create new ssh key for connecting to GitHub
+        echo "Creating new ssh key.."
+        ssh-keygen
+        echo "Key created. Create a new ssh key on GitHub using the public key.."
+        xdg-open "https://github.com/settings/keys"
+        read -p "Press ENTER when this is done.."
+    ;;
+    * )
+        echo "Skipped SSH key creation.."
+    ;;
+esac
+
+read -p "Clone system config repos: /dotfiles and /dotfiles_private (y/n)? " answer
+case ${answer:0:1} in
+    y|Y )
+        echo "Cloning..."
+        # Clone repos with system setup configs
+        mkdir ~/src
+        git clone https://github.com/christopher-hayes/dotfiles ~/src/dotfiles
+        git clone https://github.com/christopher-hayes/dotfiles_private ~/src/dotfiles_private
+        # Refresh session
+        . ~/.bashrc
+        read -p "Session refreshed with custom bash aliases+functions; Press ENTER if everything looks good..."
+    ;;
+    * )
+        echo "Skipped cloning system config repos..."
+    ;;
+esac
+
 
 ### Package Management ########################################################
 # Ruby
@@ -152,10 +185,18 @@ vim +PluginInstall +qall
 # Note: GruvBox vim theme is installed automatically with Vundle + .vimrc
 
 ### Misc ######################################################################
-read -p "[Git config] Your email=" gitemail;echo "Setting git config email to ${gitemail}"
-git config --global user.email "${gitemail}"
-read -p "[Git config] Your name=" gitname;echo "Setting git config name to ${gitname}"
-git config --global user.name "${gitname}"
+read -p "Init git config email and name? (y/n)? " answer
+case ${answer:0:1} in
+    y|Y )
+        read -p "[Git config] Your email=" gitemail;echo "Setting git config email to ${gitemail}"
+        git config --global user.email "${gitemail}"
+        read -p "[Git config] Your name=" gitname;echo "Setting git config name to ${gitname}"
+        git config --global user.name "${gitname}"
+    ;;
+    * )
+        echo "Skipped git config..."
+    ;;
+esac
 
 echo "Remember to bind CAPS to ESCAPE (Gnome Tweaks works great for this)"
 
