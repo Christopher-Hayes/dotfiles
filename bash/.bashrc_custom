@@ -2,6 +2,11 @@
 
 alias bashrcPublic='vim ~/src/dotfiles/bash/.bashrc_custom;source ~/.bashrc'
 
+### Utility Functions
+watchmem( ) {
+  while true; do ~/src/dotfiles/bash/checkmem; sleep 5; done
+}
+
 ### Fix scripts
 # GruvBox - Every install it gets an error about not finding the theme colors
 fixGruvBox() {
