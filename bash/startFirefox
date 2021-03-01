@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# "Software install" has issues accessing executables downloaded
+#   by Firefox that aren't meant to be saved. It doesn't have access to /tmp
+# Change the tmp directory env variable just for Firefox to a more accessible location
+# Set WM_CLASS with --class (Trying to get RescueTime to correctly track sites)
+TMPDIR="~/tmp" /opt/mozilla/firefox-dev/firefox --class "Firefox" <&- &
+#disown
