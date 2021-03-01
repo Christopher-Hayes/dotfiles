@@ -171,6 +171,8 @@ Plugin 'zivyangll/git-blame.vim'
 Plugin 'junegunn/vader.vim'
 " Show indent tabs
 Plugin 'Yggdroot/indentLine'
+" Airline - pretty tabline
+Plugin 'vim-airline/vim-airline'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
