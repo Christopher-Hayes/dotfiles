@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Based off of: https://unix.stackexchange.com/a/145134/295384
+
+targets=$(xclip -selection clipboard -t TARGETS -o)
+ext="png"
+imageFilename=""
+
+mkdir -p ~/Downloads/imageFromClipboard
+
+if [[ $targets =~ $image/png ]]; then
+  ext='png'
+  imageFilename=~/Downloads/imageFromClipboard/image.png
+elif [[ $targets =~ $image/jpeg ]]; then
+  ext='jpeg'
+  imageFilename=~/Downloads/imageFromClipboard/image.jpeg
+else
+  echo "No target found: ${target}"
+  exit
+fi
+
+xclip -selection clipboard -target "image/${ext}" -out > $imageFilename
+

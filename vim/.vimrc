@@ -95,6 +95,9 @@ let g:gruvbox_italic=0
 colorscheme gruvbox
 set background=dark    " Setting dark mode
 
+" Airline font
+let g:airline_powerline_fonts = 1
+
 " Color column at 80
 set colorcolumn=80
 
@@ -147,6 +150,8 @@ Plugin 'terryma/vim-multiple-cursors'
 Plugin 'tpope/vim-eunuch'
 " Surround with brackets, quotes, w/e
 Plugin 'tpope/vim-surround'
+" vim-fugitive - git in vim
+Plugin 'tpope/vim-fugitive'
 " File viewer on the left side
 Plugin 'scrooloose/nerdtree'
 " Emmet

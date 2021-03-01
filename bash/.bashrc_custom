@@ -11,6 +11,7 @@ alias setupSystemVim="vim ${this_config}/setupSystem"
 
 ### Convenience
 alias lsExt="find . -type f -name '*.*' | sed 's|.*\.||' | sort -u"
+alias saveClip="${this_config}/util/clipboard-to-file"
 function open() {
   xdg-open $1 &> /dev/null &
 }
