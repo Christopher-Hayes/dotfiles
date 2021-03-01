@@ -22,6 +22,9 @@ let g:indentLine_char = '▏'
 let g:indentLine_color_term = 40
 let g:indentLine_color_gui = '#333333'
 
+" Windows - turn off that stupid bell thing
+set belloff=all
+
 " 2 space tabs for C/C++ files
 autocmd BufRead,BufNewFile *.h setlocal tabstop=2
 autocmd BufRead,BufNewFile *.c setlocal shiftwidth=2
