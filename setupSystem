@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# Package version (update this manually, do not change format)
+nvmVersion="v0.37.2"
+
 read -p "Append custom bashrc's to .bashrc? Skip if running again. (y/n) " answer
 case ${answer:0:1} in
     y|Y )
-        echo "Updating .bashrc..."
+        printf "\nUpdating .bashrc...\n"
         # Setup bash aliases + functions before setting anything else up
         # .bashrc [PRIVATE] - pull in bash aliases + functions script
         echo '
@@ -25,26 +28,76 @@ case ${answer:0:1} in
         ln ~/src/dotfiles/vim/.vimrc ~/.vimrc
     ;;
     * )
-        echo "Skipped .bashrc source updates.."
+        printf "\nSkipped .bashrc source updates..\n\n"
     ;;
 esac
 
 # Update packages
+printf "\nUpdating APT repository..\n\n"
 sudo apt update
 
 # Install function for brevity
-i() { sudo apt install "$1" -y; }
 log_install() {
-  printf "\n--------------\nINSTALLING ${1}\n--------------\n\n"
-  sleep 1
+  newCMD=$1
+  packageType=$2
+  optionalTitle=$3
+  printf "\n\n--------------\n[${packageType}] INSTALL: ${optionalTitle:=$newCMD}\n--------------\n\n"
+}
+# APT packages
+i() {
+  newCMD=$1
+  title=$2
+  if ! command -v "$newCMD" &> /dev/null
+  then
+    # Notify user of intent
+    log_install "$newCMD" "APT" "$title"
+    # Give user a chance to cancel if prev install broke or don't want to install this command
+    sleep 2
+    # Install command
+    sudo apt install "$newCMD" -y;
+  else
+    printf "\n${newCMD} already installed, skipping..\n\n"
+  fi
+}
+# NPM (global) packages
+npmi() {
+  newCMD=$1
+  title=$2
+
+  if ! $(npm list -g | grep "$newCMD")
+  then
+    # Notify user of intent
+    log_install "$newCMD" "NPM" "$title"
+    # Give user a chance to cancel if prev install broke or don't want to install this command
+    sleep 2
+    # Install command
+    npm list -g | grep "$newCMD" || npm i -g "$newCMD" --no-shrinkwrap
+  else
+    printf "\nNPM global package ${newCMD} already installed, skipping..\n\n"
+  fi
+}
+# Brew packages
+brewi() {
+  newCMD=$1
+  title=$2
+
+  if ! $(brew list "$newCMD")
+  then
+    # Notify user of intent
+    log_install "$newCMD" "Brew" "$title"
+    # Give user a chance to cancel if prev install broke or don't want to install this command
+    sleep 2
+    # Install command
+    brew list "$newCMD" || brew install "$newCMD"
+  else
+    printf "\nBrew package ${newCMD} already installed, skipping..\n\n"
+  fi
 }
 
-# Install git before anything
-if ! command -v git &> /dev/null
-then
-  log_install "GIT"
-	i git
-fi
+# Install git and cURL before anything
+i git "Git"
+# cURL
+i curl "cURL"
 
 read -p "Create new SSH key for GitHub (y/n)? " answer
 case ${answer:0:1} in
@@ -57,7 +110,7 @@ case ${answer:0:1} in
         read -p "Press ENTER when this is done.."
     ;;
     * )
-        echo "Skipped SSH key creation.."
+        printf "\nSkipped SSH key creation..\n\n"
     ;;
 esac
 
@@ -74,7 +127,7 @@ case ${answer:0:1} in
         read -p "Session refreshed with custom bash aliases+functions; Press ENTER if everything looks good..."
     ;;
     * )
-        echo "Skipped cloning system config repos..."
+        printf "\nSkipped cloning system config repos...\n\n"
     ;;
 esac
 
@@ -85,86 +138,144 @@ i ruby
 # Homebrew
 if ! command -v brew &> /dev/null
 then
-  log_install "HOMEBREW"
+  log_install "HOMEBREW" "Source"
 
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  # Add to path
 	echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "/home/${USER}/.profile";
 	eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+  # Update
 	brew update
+  # Refresh session to be able to use `brew` later on
+  . ~/.bashrc
+else
+  printf "\nBrew already installed, skipping..\n\n"
 fi
 # NVM
 if ! command -v nvm &> /dev/null
 then
-  log_install "NVM v0.35.3"
-	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+  log_install "NVM ${nvmVersion}" "Source"
+	sudo curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${nvmVersion}/install.sh" | bash
+  # Refresh session to be able to use `nvm` later on
 	. ~/.bashrc
 	# update node to latest lts version
 	nvm::update;
+  # Install node stable
+  nvm install stable
+  # Use node stable
+  nvm use stable
+else
+  printf "\nNVM already installed, skipping..\n\n"
 fi
 # Yarn
 if ! command -v yarn &> /dev/null
 then
-  log_install "YARN"
+  log_install "YARN" "Source"
+  # Add repo
   curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
   echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+  # Install with APT
   sudo apt update && sudo apt install --no-install-recommends yarn
+  # Refresh session to be able to use `yarn` later on
+	. ~/.bashrc
+else
+  printf "\nYarn already installed, skipping..\n\n"
 fi
 # Vundle (Vim package management)
-mkdir -p ~/.vim/bundle
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+read -p "Install Vundle? (y/n)? " answer
+case ${answer:0:1} in
+    y|Y )
+        mkdir -p ~/.vim/bundle
+        git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+    ;;
+    * )
+        printf "\nSkipping Vundle install...\n\n"
+    ;;
+esac
 
 
 ### TOOLS #####################################################################
+# Git - git flow
 i git-flow
+# Git - git lfs
+brewi "git-lfs" "git-lfs - Git Large FileSystem"
 # Aptitude - Get APT package versions, search, upgrade versions
-i aptitude
+i aptitude "aptitude - APT package management tool"
 # htop - Hardware stats
-i htop
+i htop "htop - hardware stats"
 # alsamixer - CLI Sound levels
-i alsamixer
+i alsamixer "alsamixer - CLI Sound levels"
 # Webp converter
-i webp
+i webp "WebP converter CLI tool"
+# AWS CLI
+if ! command -v aws &> /dev/null
+then
+  log_install "AWS CLI" "Source"
+  sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  sudo unzip /tmp/awscliv2.zip -d /tmp/
+  sudo /tmp/aws/install
+else
+  printf "\nAWS CLI already installed, skipping..\n\n"
+fi
+# Copy-paste
+i xsel "xsel - Copy/paste from CLI"
 
 # Net tools (ifconfig)
-if ! command -v ifconfig &> /dev/null
-then
-  log_install "net-tools (ifconfig)"
-	i net-tools
-fi
+i net-tools "net-tools (ifconfig)"
 # GitHub cli
 if ! command -v gh &> /dev/null
 then
-  log_install "GitHub CLI (gh)"
+  log_install "GitHub CLI (gh)" "Source"
 	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 	sudo apt-add-repository https://cli.github.com/packages
 	sudo apt update
 	sudo apt install gh
+  # Refresh session to be able to use `gh` later on
+	. ~/.bashrc
+else
+  printf "\nGitHub GH CLI already installed, skipping..\n\n"
 fi
 ### NPM tools
 # Vue CLI
-npm i -g @vue/cli
+npmi "@vue/cli" "Vue CLI"
 # Generates version for usage in node apps
-npm i -g genversion
+npmi "genversion" "genversion - access version from node project"
 # Check/update major pkg versions
-npm i -g npm-check-updates
+npmi "npm-check-updates"
 
 ### Frequently used packages
 # Draco
-mkdir ~/pkg; cd ~/pkg
-gh repo clone google/draco
-cd draco && mkdir build_dir && cd build_dir && cmake ../ && make
+read -p "Install Draco compression encode/decode scripts? (y/n)? " answer
+case ${answer:0:1} in
+    y|Y )
+        mkdir ~/pkg; cd ~/pkg
+        gh repo clone google/draco
+        cd draco && mkdir build_dir && cd build_dir && cmake ../ && make
+    ;;
+    * )
+        printf "\nSkipping draco compressoin install..\n\n"
+    ;;
+esac
 # 
 
 ### Utilities #################################################################
 # Watchman - watch FS
-brew install watchman
+brewi "watchman" "watchman - watch FS"
 # PHP
 i php
 i php-curl
 # Rust
-curl https://sh.rustup.rs -sSf | sh
-export PATH=$HOME/.cargo/bin:$PATH
-cargo install cbindgen
+read -p "Install Rust? (y/n)? " answer
+case ${answer:0:1} in
+    y|Y )
+        curl https://sh.rustup.rs -sSf | sh
+        export PATH=$HOME/.cargo/bin:$PATH
+        cargo install cbindgen
+    ;;
+    * )
+        printf "\nSkipping Rust install...\n\n"
+    ;;
+esac
 # XClip - clipboard util
 i xclip
 # Build essentials (gcc, g++, make)
@@ -179,10 +290,16 @@ i python3
 i vim
 # Now that Vim is installed, install the plugins from Vundle
 # Remember that /dotfiles_private needs to exist for this to work
+echo "Vundle plugin install.."
 vim +PluginInstall +qall
-
-### Theming ###################################################################
-# Note: GruvBox vim theme is installed automatically with Vundle + .vimrc
+# RClone - Working with cloud files (ie WebDav)
+if ! command -v rclone &> /dev/null
+then
+  log_install "RClone - cloud files management tool" "Source"
+  curl https://rclone.org/install.sh | sudo bash
+else
+  printf "\nRClone already installed, skipping..\n\n"
+fi 
 
 ### Misc ######################################################################
 read -p "Init git config email and name? (y/n)? " answer
@@ -194,7 +311,7 @@ case ${answer:0:1} in
         git config --global user.name "${gitname}"
     ;;
     * )
-        echo "Skipped git config..."
+        printf "\nSkipped git config...\n\n"
     ;;
 esac
 

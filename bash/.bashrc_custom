@@ -1,11 +1,23 @@
 #!/bin/bash
 
-alias bashrcPublic='vim ~/src/dotfiles/bash/.bashrc_custom;source ~/.bashrc'
+this_config="~/src/dotfiles" # No trailing /
 
-### Utility Functions
-watchmem( ) {
-  while true; do ~/src/dotfiles/bash/checkmem; sleep 5; done
+# Clear ~/tmp on startup
+rm -fr ~/tmp
+mkdir ~/tmp &> /dev/null
+
+alias bashrcPublic="vim ${this_config}/bash/.bashrc_custom;source ~/.bashrc"
+alias setupSystemVim="vim ${this_config}/setupSystem"
+
+### Convenience
+alias lsExt="find . -type f -name '*.*' | sed 's|.*\.||' | sort -u"
+function open() {
+  xdg-open $1 &> /dev/null &
 }
+
+### Utilities
+alias watchmem="${this_config}/bash/watchmem"
+
 
 ### Fix scripts
 # GruvBox - Every install it gets an error about not finding the theme colors

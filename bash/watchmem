@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Browser info
+browser_proc_name="firefox"
+browser_exec="/opt/mozilla/firefox-dev/firefox"
+
+# Send notification that RAM is low
+send_notification() {
+  notify-send --urgency=critical "MEMORY LOW! $freeMem MB"
+}
+
+# Last ditch effort to free up RAM before computer freezes
+restart_browser() {
+  # Kill browser
+  pkill "$browser_proc_name"
+  # Wait for RAM to chill out
+  sleep 3
+  # Start in bg and disown
+  ($(browser_exec) &)
+}
+
+# Check RAM, take actions as needed
+checkmem() {
+  # Show RAM (haven't figured out a way to print memStr and keep formatting)
+  free -m
+
+  # Parse available RAM
+  memStr=$(free -m)
+  freeMem=$(echo $memStr | awk -v N=13 '{print $N}')
+
+  # Low RAM actions
+  if (( $freeMem < 1000 )); then
+    send_notification
+  elif (( $freeMem < 100 )); then
+    restart_browser
+  fi
+}
+
+# In loop - every 5 seconds check RAM
+while true; do
+  checkmem
+  sleep 5
+done
+
