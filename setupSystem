@@ -94,9 +94,9 @@ brewi() {
   fi
 }
 
-# Install git and cURL before anything
+# Install git Mercurial, and cURL before anything
 i git "Git"
-# cURL
+i mercurial "Mercurial SCM"
 i curl "cURL"
 
 read -p "Create new SSH key for GitHub (y/n)? " answer
@@ -199,6 +199,8 @@ esac
 i git-flow
 # Git - git lfs
 brewi "git-lfs" "git-lfs - Git Large FileSystem"
+# Git - Fast-forward pulls, don't merge: https://blog.sffc.xyz/post/185195398930/why-you-should-use-git-pull-ff-only-git-is-a
+git config --global pull.ff only
 # Aptitude - Get APT package versions, search, upgrade versions
 i aptitude "aptitude - APT package management tool"
 # htop - Hardware stats
@@ -242,6 +244,10 @@ npmi "@vue/cli" "Vue CLI"
 npmi "genversion" "genversion - access version from node project"
 # Check/update major pkg versions
 npmi "npm-check-updates"
+# Gitmoji
+npmi "gitmoji-cli" "Gitmoji"
+# Livedown (works with Vim plugin) - Live preview markdown files
+npmi "livedown" "Livedown"
 
 ### Frequently used packages
 # Draco

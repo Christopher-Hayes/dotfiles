@@ -9,6 +9,9 @@ set noswapfile
 " Line numbers
 set number
 
+" Allow resizing tabs with mouse - soooo much easier
+set mouse=a
+
 " 2 space tabs, tab button = 2 spaces
 set tabstop=2
 set shiftwidth=2
@@ -146,12 +149,6 @@ Plugin 'junegunn/fzf'
 Plugin 'itchyny/lightline.vim'
 " Vim multiple cursor
 Plugin 'terryma/vim-multiple-cursors'
-" Handy Unix utilities
-Plugin 'tpope/vim-eunuch'
-" Surround with brackets, quotes, w/e
-Plugin 'tpope/vim-surround'
-" vim-fugitive - git in vim
-Plugin 'tpope/vim-fugitive'
 " File viewer on the left side
 Plugin 'scrooloose/nerdtree'
 " Emmet
@@ -178,6 +175,18 @@ Plugin 'junegunn/vader.vim'
 Plugin 'Yggdroot/indentLine'
 " Airline - pretty tabline
 Plugin 'vim-airline/vim-airline'
+" Livedown - Live markdown preview
+Plugin 'shime/vim-livedown'
+nmap gm :LivedownToggle
+" ------ TPOPIA ------
+" Handy Unix utilities
+Plugin 'tpope/vim-eunuch'
+" Surround with brackets, quotes, w/e
+Plugin 'tpope/vim-surround'
+" vim-fugitive - git in vim
+Plugin 'tpope/vim-fugitive'
+" Abolish - smart replace words
+Plugin 'tpope/vim-abolish'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
