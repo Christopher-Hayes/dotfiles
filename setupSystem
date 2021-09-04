@@ -322,5 +322,5 @@ case ${answer:0:1} in
     ;;
 esac
 
-echo "Remember to bind CAPS to ESCAPE (Gnome Tweaks works great for this)"
+echo "Remember to bind CAPS to ESCAPE (use Gnome Tweaks on Ubuntu)"
 
