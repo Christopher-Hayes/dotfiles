@@ -153,18 +153,20 @@ fi
 # NVM
 if ! command -v nvm &> /dev/null
 then
-  log_install "NVM ${nvmVersion}" "Source"
+	log_install "NVM ${nvmVersion}" "Source"
 	sudo curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${nvmVersion}/install.sh" | bash
-  # Refresh session to be able to use `nvm` later on
+	# Let user update .bashrc if needed
+	read -n1 -r -p "Does the NVM install output ask to run anything? Please do that now, and then hit enter when ready.." key
+	# Refresh session to be able to use `nvm` later on
 	. ~/.bashrc
 	# update node to latest lts version
 	nvm::update;
-  # Install node stable
-  nvm install stable
-  # Use node stable
-  nvm use stable
+	# Install node stable
+	nvm install stable
+	# Use node stable
+	nvm use stable
 else
-  printf "\nNVM already installed, skipping..\n\n"
+	printf "\nNVM already installed, skipping..\n\n"
 fi
 # Yarn
 if ! command -v yarn &> /dev/null
