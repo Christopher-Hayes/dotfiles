@@ -1,7 +1,6 @@
-#!/bin/bash
-
+#!/bin/bash 
 # Package version (update this manually, do not change format)
-nvmVersion="v0.37.2"
+nvmVersion="v0.38.0"
 
 read -p "Append custom bashrc's to .bashrc? Skip if running again. (y/n) " answer
 case ${answer:0:1} in
