@@ -1,4 +1,5 @@
 #!/bin/bash
+# NOTE - PUBLIC REPO CONFIG
 
 this_config="~/src/dotfiles" # No trailing /
 
@@ -26,6 +27,7 @@ png2ico () {
 
 ### Fix scripts
 # GruvBox - Every install it gets an error about not finding the theme colors
+# Update - in .vimrc put "colorscheme" after the Plugin lines, to fix this issue
 fixGruvBox() {
   mkdir -p ~/.vim/colors
   cp ~/.vim/bundle/gruvbox/colors/gruvbox.vim ~/.vim/colors/

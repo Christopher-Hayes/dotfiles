@@ -1,3 +1,4 @@
+" NOTE - PUBLIC REPO CONFIG
 set nocompatible
 filetype off
 

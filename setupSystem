@@ -1,4 +1,7 @@
 #!/bin/bash 
+# --------------------------
+# NOTE - PUBLIC REPO CONFIG
+# --------------------------
 # Package version (update this manually, do not change format)
 nvmVersion="v0.38.0"
 

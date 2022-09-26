@@ -1,3 +1,6 @@
+// NOTE - PUBLIC CONFIG
+
+
 local wezterm = require 'wezterm'
 
 return {
