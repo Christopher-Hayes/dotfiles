@@ -93,11 +93,6 @@ if &diff
   map [ [c
 endif
 
-" Color scheme
-let g:gruvbox_italic=0
-colorscheme gruvbox
-set background=dark    " Setting dark mode
-
 " Airline font
 let g:airline_powerline_fonts = 1
 
@@ -190,4 +185,10 @@ Plugin 'tpope/vim-abolish'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
+
+" Color scheme
+" Must come after Plugin lines
+let g:gruvbox_italic=0
+colorscheme gruvbox
+set background=dark    " Setting dark mode
 
