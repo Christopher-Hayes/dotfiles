@@ -4,8 +4,8 @@
 this_config="~/src/dotfiles" # No trailing /
 
 # Clear ~/tmp on startup
-rm -fr ~/tmp
-mkdir ~/tmp &> /dev/null
+rm -fr ~/tmp;
+mkdir ~/tmp &> /dev/null;
 
 alias bashrcPublic="vim ${this_config}/bash/.bashrc_custom;source ~/.bashrc"
 alias setupSystemVim="vim ${this_config}/setupSystem"
@@ -17,8 +17,115 @@ function open() {
   xdg-open $1 &> /dev/null &
 }
 
+# fasthotfix
+fasthotfix () {
+  # Ensure gitflow is installed
+  if ! git flow version > /dev/null 2>&1; then
+      echo "Please install git-flow.";
+      exit 1;
+  fi
+
+  # Check for uncommitted changes
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+      echo "Uncommitted changes detected, stashing them temporarily...";
+      git stash;
+      STASHED=true;
+  else
+      STASHED=false;
+  fi
+
+  # Get the current version from package.json
+  CURRENT_VERSION=$(jq -r '.version' package.json);
+  echo "Current version: $CURRENT_VERSION";
+
+  # Increment the patch version
+  NEW_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{printf("%d.%d.%d", $1, $2, $3 + 1)}')
+  echo "New version: $NEW_VERSION"
+
+  # Create a new hotfix branch
+  echo "Creating a new hotfix branch...";
+  git flow hotfix start "hotfix-$NEW_VERSION";
+
+  # Apply stashed changes if any
+  if $STASHED; then
+      echo "Applying stashed changes...";
+      git stash pop;
+      git add .;
+  fi
+
+  # Commit the changes
+  echo "Committing changes..."
+  # Use HUSKY_SKIP_HOOKS=1 to avoid running gitmoji-cli hook
+  # HUSKY_SKIP_HOOKS=1 git commit -a -m "Hotfix $NEW_VERSION: Applied changes" --no-verify
+  oc --no-verify
+
+  # Update the version in package.json
+  echo "Updating version in package.json..."
+  jq ".version = \"$NEW_VERSION\"" package.json > tmp_package.json && mv tmp_package.json package.json
+
+
+  # Commit the version bump
+  echo "Committing the version bump..."
+  # Use HUSKY_SKIP_HOOKS=1 to avoid running gitmoji-cli hook
+  HUSKY_SKIP_HOOKS=1 git commit -a -m "Hotfix $NEW_VERSION: Bump version" --no-verify
+
+  # Finish the hotfix
+  echo "Finishing the hotfix..."
+  git flow hotfix finish -m "Hotfix $NEW_VERSION: Merge changes" "hotfix-$NEW_VERSION"
+
+  echo "Hotfix $NEW_VERSION complete!"
+
+  # push all
+  pa;
+};
+
+# fastrelease
+fastrelease () {
+  # Ensure gitflow is installed
+  if ! git flow version > /dev/null 2>&1; then
+      echo "Please install git-flow."
+      exit 1
+  fi
+
+  # Check for uncommitted changes
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Uncommitted changes detected"
+    exit 1
+  fi
+
+  # Get the current version from package.json
+  CURRENT_VERSION=$(jq -r '.version' package.json)
+  echo "Current version: $CURRENT_VERSION"
+
+  # Increment the patch version
+  NEW_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{printf("%d.%d.%d", $1, $2, $3 + 1)}')
+  echo "New version: $NEW_VERSION"
+
+  # Create a new release branch
+  echo "Creating a new release branch..."
+  git flow release start "v$NEW_VERSION"
+
+  # Update the version in package.json
+  echo "Updating version in package.json..."
+  jq ".version = \"$NEW_VERSION\"" package.json > tmp_package.json && mv tmp_package.json package.json;
+
+  # Commit the version bump
+  echo "Committing the version bump..."
+  # Use HUSKY_SKIP_HOOKS=1 to avoid running gitmoji-cli hook
+  git commit -a -m "Release $NEW_VERSION: Bump version"
+
+  # Finish the release
+  echo "Finishing the release..."
+  git flow release finish -m "Release $NEW_VERSION: Merge changes" "v$NEW_VERSION"
+
+  echo "Release $NEW_VERSION complete!"
+
+  # push all
+  pa;
+};
+
 ### Utilities
-alias watchmem="${this_config}/bash/watchmem"
+alias watchmem="${this_config}/bash/watchmem";
 # Convert .png to .ico
 png2ico () {
     local i="${1}" o="${2:-${1:r}.ico}" s="${png2ico_size:-256}"
@@ -29,8 +136,8 @@ png2ico () {
 # GruvBox - Every install it gets an error about not finding the theme colors
 # Update - in .vimrc put "colorscheme" after the Plugin lines, to fix this issue
 fixGruvBox() {
-  mkdir -p ~/.vim/colors
-  cp ~/.vim/bundle/gruvbox/colors/gruvbox.vim ~/.vim/colors/
+  mkdir -p ~/.vim/colors;
+  cp ~/.vim/bundle/gruvbox/colors/gruvbox.vim ~/.vim/colors/;
 }
 
 
